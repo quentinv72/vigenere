@@ -39,7 +39,7 @@ class VigenereDecipher:
 
     def _decipher_with_key(self, key: str) -> str:
         clear_text = ""
-        for index, letter in enumerate(self.cipher_represenation):
+        for index, letter in enumerate(self.cipher_representation):
             deciphered_position = (letter - key[index % len(key)]) % 26
             clear_text += self.positions[deciphered_position]
         return clear_text
@@ -71,7 +71,7 @@ class VigenereDecipher:
         ordered_frequency.sort(key=lambda freq: freq[1], reverse=True)
         return [self.positions[(i[0] - 4) % 26] for i in ordered_frequency][0]
 
-    def estimate_key_length(self):
+    def estimate_key_length(self) -> str:
         # Use Kasiski's test to estimate the length of key
         trigrams = dict()
         for i in range(0, len(self.cipher) - 3):
@@ -86,4 +86,4 @@ class VigenereDecipher:
         for i in range(len(top_trigram[1]) - 1):
             distances.append(abs(top_trigram[1][i] - top_trigram[1][i + 1]))
         gcd = functools.reduce(lambda x, y: math.gcd(x, y), distances)
-        print("The keylength divides", gcd)
+        return f"The keylength divides {gcd}"
