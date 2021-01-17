@@ -4,7 +4,9 @@
 
 from typing import Optional
 import string
+import math
 import itertools
+import functools
 
 
 class VigenereDecipher:
@@ -27,18 +29,13 @@ class VigenereDecipher:
 
     def decipher(self):
         """
-        Decipher Vigenere cipher with or without the key/keylength
+        Decipher Vigenere cipher with key
 
         Returns:
             str: Deciphered cipher.
         """
         if self.key:
             return self._decipher_with_key(self.key)
-        elif self.key_length:
-            key = self.guess_key(self.key_length)
-            print(key)
-            return self._decipher_with_key(key)
-        # Estimate key legnth and then run previous methods
 
     def _decipher_with_key(self, key: str) -> str:
         clear_text = ""
@@ -73,3 +70,20 @@ class VigenereDecipher:
         del frequency
         ordered_frequency.sort(key=lambda freq: freq[1], reverse=True)
         return [self.positions[(i[0] - 4) % 26] for i in ordered_frequency][0]
+
+    def estimate_key_length(self):
+        # Use Kasiski's test to estimate the length of key
+        trigrams = dict()
+        for i in range(0, len(self.cipher) - 3):
+            if trigrams.get(self.cipher[i : i + 3]):
+                trigrams[self.cipher[i : i + 3]].append(i)
+                continue
+            trigrams[self.cipher[i : i + 3]] = [i]
+        ordered_trigrams = list(trigrams.items())
+        ordered_trigrams.sort(key=lambda trigram: len(trigram[1]), reverse=True)
+        top_trigram = ordered_trigrams[0]
+        distances = []
+        for i in range(len(top_trigram[1]) - 1):
+            distances.append(abs(top_trigram[1][i] - top_trigram[1][i + 1]))
+        gcd = functools.reduce(lambda x, y: math.gcd(x, y), distances)
+        print("The keylength divides", gcd)
